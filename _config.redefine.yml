@@ -227,6 +227,9 @@ navbar:
     分类: 
       path: /categories 
       icon: fa-solid fa-folder # can be empty
+    友链:
+      path: /friends
+      icon: fa-solid fa-link # can be empty
     关于: 
       path: /about 
       icon: fa-solid fa-user # can be empty
@@ -276,6 +279,9 @@ home:
       分类: 
         path: /categories 
         icon: fa-solid fa-folder # can be empty
+      友链:
+        path: /friends
+        icon: fa-solid fa-link # can be empty
       # ...... # you can add more
   # Article date format
   article_date_format: auto # auto, relative, YYYY-MM-DD, YYYY-MM-DD HH:mm:ss etc.
@@ -447,10 +453,10 @@ footer:
 # Docs: https://redefine-docs.ohevan.com/inject
 inject:
   # Whether to enable inject
-  enable: false
+  enable: true
   # Inject custom head html code
   head: 
-    -
+    - <link rel="stylesheet" href="/css/friends.css">
     -
   # Inject custom footer html code
   footer:
