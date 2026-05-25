@@ -1,5 +1,5 @@
 ---
-title: 友链
+title: "友链"
 date: 2026-05-25 19:58:00
 comment: false
 comments: false
@@ -9,7 +9,7 @@ comments: false
 <div class="friend-links-page">
   <p class="friend-links-intro"><strong>非常感谢师傅们的陪伴与支持！</strong></p>
 
-  <h2>校内</h2>
+  <h2>CPPU-ISA</h2>
   <div class="friend-links-container">
     <div class="friend-card">
       <a class="friend-avatar-link" href="http://happyprimes.cn/" rel="noopener noreferrer" target="_blank">
@@ -84,7 +84,7 @@ comments: false
     </div>
   </div>
 
-  <h2>校外</h2>
+  <h2>Friends</h2>
   <div class="friend-links-container">
     <div class="friend-card">
       <a class="friend-avatar-link" href="https://www.cnblogs.com/alexander17" rel="noopener noreferrer" target="_blank">
@@ -110,5 +110,6 @@ comments: false
       <div class="friend-bio">是misc申🦊🐕</div>
     </div>
   </div>
+
 </div>
 {% endraw %}
