@@ -25,11 +25,11 @@ info:
 # Docs: https://redefine-docs.ohevan.com/basic/defaults
 defaults:
   # Favicon
-  favicon: "https://files.cnblogs.com/files/blogs/833309/%E5%9B%BE%E7%89%871.ico"
+  favicon: /images/favicon.ico
   # Site logo
   logo: 
   # Site avatar
-  avatar: "https://pic.cnblogs.com/avatar/3539156/20260512195954.png"
+  avatar: /images/site-avatar.png
 # IMAGE CONFIGURATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< end
 
 
