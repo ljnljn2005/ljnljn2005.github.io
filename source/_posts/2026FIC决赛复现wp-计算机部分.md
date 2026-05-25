@@ -31,29 +31,29 @@ tags:
 ## 检材1.计算机
 1. 分析计算机检材，嫌疑人telegram绑定的手机号为
 5.00 分
-![](assets/2026FIC决赛复现wp/file-20260525193927392.png)
+![](/assets/2026FIC决赛复现wp/file-20260525193927392.png)
 2. 分析计算机检材，cherry studio工具配置的默认模型ip地址为
 6.00 分
-![](assets/2026FIC决赛复现wp/file-20260525194253425.png)
+![](/assets/2026FIC决赛复现wp/file-20260525194253425.png)
 3. 分析计算机检材，BitLocker的恢复密钥后6位
 桌面上有一个backup，打开后9张图片，一看就是拼图
 进行拼图处理
 其实只要根据名字按顺序拼就行了，这里用了hxyz的工具进行处理，得到一张完整图片
-![](assets/2026FIC决赛复现wp/sollll.png)
+![](/assets/2026FIC决赛复现wp/sollll.png)
 图片在红色0通道有一个二维码，扫描即可获得密钥
-![](assets/2026FIC决赛复现wp/屏幕截图%202026-05-23%20161240.png)
+![](/assets/2026FIC决赛复现wp/屏幕截图%202026-05-23%20161240.png)
 4. 分析计算机检材并找到proton邮箱的助记词，第一个单词为
 7.00 分
 （待补充）
 助记词在D盘的key文件夹下
-![](assets/2026FIC决赛复现wp/file-20260525184954600.png)
+![](/assets/2026FIC决赛复现wp/file-20260525184954600.png)
 
 5. 分析计算机检材，嫌疑人对zhuhu.fic网站发起攻击时，用户名user对应的密码为
 6.00 分
 既然是网站攻击那就不是burpsuite就是yakit，正好桌面上有一个，打开看数据库里有fic数据库
-![](assets/2026FIC决赛复现wp/file-20260525192847086.png)
+![](/assets/2026FIC决赛复现wp/file-20260525192847086.png)
 这里筛选出zhuhu.fic的，然后发现里面有反弹shell部分
-![](assets/2026FIC决赛复现wp/file-20260525193720716.png)
+![](/assets/2026FIC决赛复现wp/file-20260525193720716.png)
 推断下面那个post login请求是登陆成功的请求
 
 6. 分析计算机检材，嫌疑人对zhuhu.fic网站发起攻击时网站使用的jwt，其签名密钥为
@@ -66,65 +66,65 @@ yutubi.top
 8. 分析计算机检材，嫌疑人对zhuhu.fic网站发起攻击过程中，下载的住户信息文件密码为
 7.00 分
 最后一个包做了导出，这里面内置了密码
-![](assets/2026FIC决赛复现wp/file-20260525193902281.png)
+![](/assets/2026FIC决赛复现wp/file-20260525193902281.png)
 9. 搜索计算机检材，找到迷宫游戏中预设的最优路径，分析游戏中隐藏的密码
 9.00 分
 直接玩
 （比赛的录屏懒得再玩一次了）
-![](assets/2026FIC决赛复现wp/file-20260525191836514.png)
+![](/assets/2026FIC决赛复现wp/file-20260525191836514.png)
 10. 用上述密码解密嫌疑人窃取的外卖数据文件，其中address字段为沈阳市的用户数量为（无需去重或验证数据真实性）
 7.00 分
 实在不会，问ai了，说是数据库，感觉题目也没提示
 用dbbrowser sqlcipher版本，默认cipher版本4，输入密码可以打开
-![](assets/2026FIC决赛复现wp/file-20260525205048904.png)
+![](/assets/2026FIC决赛复现wp/file-20260525205048904.png)
 执行一下sql语句
-![](assets/2026FIC决赛复现wp/file-20260525205114760.png)
+![](/assets/2026FIC决赛复现wp/file-20260525205114760.png)
 
 11. 搜索计算机检材，找到树莓派备份文件，分析其中部署的模型文件md5值为
 5.00 分
 比赛完才听别的师傅说可以用diskgenius打开
-![](assets/2026FIC决赛复现wp/file-20260525185259023.png)
+![](/assets/2026FIC决赛复现wp/file-20260525185259023.png)
 那确实好办了
 我这里先转成vmdk
-![](assets/2026FIC决赛复现wp/file-20260525185607264.png)
+![](/assets/2026FIC决赛复现wp/file-20260525185607264.png)
 然后导入火眼
 直接从大到小排序，一般本地模型都很大
-![](assets/2026FIC决赛复现wp/file-20260525190621773.png)
+![](/assets/2026FIC决赛复现wp/file-20260525190621773.png)
 12. 分析树莓派备份文件，其中部署的ai agent程序为
 6.00 分
 hermes
 看历史命令，发现访问了这个文件夹
-![](assets/2026FIC决赛复现wp/file-20260525190402092.png)
+![](/assets/2026FIC决赛复现wp/file-20260525190402092.png)
 翻了一下
 看到hermes
-![](assets/2026FIC决赛复现wp/file-20260525190303996.png)
+![](/assets/2026FIC决赛复现wp/file-20260525190303996.png)
 
 13. 分析树莓派备份文件，agent程序中，用于爬取暗网的skill所爬取的网站域名为
 7.00 分
 找到skill
-![](assets/2026FIC决赛复现wp/file-20260525194639987.png)
+![](/assets/2026FIC决赛复现wp/file-20260525194639987.png)
 代码里面就有
-![](assets/2026FIC决赛复现wp/file-20260525194740616.png)
+![](/assets/2026FIC决赛复现wp/file-20260525194740616.png)
 14. 分析该agent程序，skill在爬取暗网过程中，最早下载的样本文件名为
 7.00 分
 看sessions
 第一个
-![](assets/2026FIC决赛复现wp/file-20260525195038046.png)
+![](/assets/2026FIC决赛复现wp/file-20260525195038046.png)
 虽然脚本尝试先下载 Communicare 的 `samples.zip`，但因 `.onion` 地址不可达而失败，因此 `sample_5_databases-info.txt` 成为首个成功保存的样本文件。
 15. 暗网服务使用的上游代理ip地址是什么
 7.00 分
-![](assets/2026FIC决赛复现wp/file-20260525195705295.png)
+![](/assets/2026FIC决赛复现wp/file-20260525195705295.png)
 16. 分析计算机检材中的cs.exe，请给出这个exe程序的md5值？
 5.00 分
 e630529110a01b1ce38a9a1bf3bee9f0
 17. 分析计算机检材中的cs.exe，连接的C2地址是？
 6.00 分
 用currports抓
-![](assets/2026FIC决赛复现wp/file-20260525195849144.png)
+![](/assets/2026FIC决赛复现wp/file-20260525195849144.png)
 18. 分析计算机检材中的cs.exe，可以获取几个浏览器的密码？
 7.00 分
 点击cs.exe后临时文件夹里出现了一个文件夹，疑似病毒释放的
-![](assets/2026FIC决赛复现wp/file-20260525200337553.png)
+![](/assets/2026FIC决赛复现wp/file-20260525200337553.png)
 进去之后是python的nutika打包，本人不太会做就不做了
 
 19. 分析计算机检材中的cs.exe。

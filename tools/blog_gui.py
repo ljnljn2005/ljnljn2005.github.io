@@ -8,6 +8,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.parse
 import urllib.request
 import webbrowser
 from dataclasses import dataclass
@@ -18,11 +19,16 @@ from tkinter import ttk
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FRIENDS_FILE = ROOT / "source" / "friends" / "index.md"
-ABOUT_FILE = ROOT / "source" / "about" / "index.md"
-POSTS_DIR = ROOT / "source" / "_posts"
-FRIEND_ASSET_DIR = ROOT / "source" / "assets" / "friends"
+SOURCE_DIR = ROOT / "source"
+FRIENDS_FILE = SOURCE_DIR / "friends" / "index.md"
+ABOUT_FILE = SOURCE_DIR / "about" / "index.md"
+POSTS_DIR = SOURCE_DIR / "_posts"
+SOURCE_ASSETS_DIR = SOURCE_DIR / "assets"
+POST_ASSETS_DIR = POSTS_DIR / "assets"
+FRIEND_ASSET_DIR = SOURCE_ASSETS_DIR / "friends"
 NPM = "npm.cmd" if os.name == "nt" else "npm"
+MARKDOWN_IMAGE_RE = re.compile(r"!\[[^\]]*\]\(([^)\n]+)\)")
+HTML_IMAGE_RE = re.compile(r"""(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)""", re.I)
 
 
 def read_text(path: Path) -> str:
@@ -179,6 +185,178 @@ def import_avatar(source: str, name: str) -> str:
     return "/" + dest.relative_to(ROOT / "source").as_posix()
 
 
+def is_external_target(target: str) -> bool:
+    return bool(re.match(r"^(?:[a-z][a-z0-9+.-]*:)?//|^(?:data|mailto|tel|javascript):", target, re.I))
+
+
+def split_target_suffix(target: str) -> tuple[str, str]:
+    indexes = [idx for idx in (target.find("?"), target.find("#")) if idx >= 0]
+    if not indexes:
+        return target, ""
+    idx = min(indexes)
+    return target[:idx], target[idx:]
+
+
+def unwrap_image_target(target: str) -> str:
+    value = target.strip()
+    if len(value) >= 2 and value[0] == "<" and value[-1] == ">":
+        return value[1:-1].strip()
+    return value
+
+
+def decode_local_target(target: str) -> str:
+    base, suffix = split_target_suffix(unwrap_image_target(target))
+    decoded = urllib.parse.unquote(base).replace("\\", "/").strip()
+    while decoded.startswith("./"):
+        decoded = decoded[2:]
+    return decoded + suffix
+
+
+def encode_local_target(target: str) -> str:
+    return target.replace(" ", "%20")
+
+
+def normalize_image_target(post_path: Path, target: str) -> str:
+    original = unwrap_image_target(target)
+    if not original or is_external_target(original):
+        return target
+
+    base, suffix = split_target_suffix(original)
+    decoded = urllib.parse.unquote(base).replace("\\", "/").strip()
+    while decoded.startswith("./"):
+        decoded = decoded[2:]
+
+    public_path: str | None = None
+    if decoded.startswith("/assets/"):
+        public_path = decoded
+    elif decoded.startswith("assets/"):
+        public_path = "/" + decoded
+    elif decoded.startswith("_posts/assets/"):
+        public_path = "/" + decoded.removeprefix("_posts/")
+    elif decoded.startswith("source/_posts/assets/"):
+        public_path = "/" + decoded.removeprefix("source/_posts/")
+    elif decoded.startswith("/source/_posts/assets/"):
+        public_path = "/" + decoded.removeprefix("/source/_posts/")
+    else:
+        candidate = (post_path.parent / decoded).resolve()
+        if candidate.exists() and candidate.is_file():
+            public_path = f"/assets/{post_path.stem}/{candidate.name}"
+
+    if not public_path:
+        return target
+    return encode_local_target(public_path + suffix)
+
+
+def public_target_to_source_path(target: str) -> Path | None:
+    base, _suffix = split_target_suffix(unwrap_image_target(target))
+    decoded = urllib.parse.unquote(base).replace("\\", "/").strip()
+    if not decoded.startswith("/assets/"):
+        return None
+    return SOURCE_DIR / decoded.lstrip("/")
+
+
+def image_source_candidates(post_path: Path, original_target: str, public_target: str) -> list[Path]:
+    candidates: list[Path] = []
+    original = decode_local_target(original_target)
+    original_base, _suffix = split_target_suffix(original)
+    public_base, _public_suffix = split_target_suffix(decode_local_target(public_target))
+
+    for raw in [original_base, public_base.lstrip("/")]:
+        if not raw:
+            continue
+        clean = raw.lstrip("/")
+        candidates.extend(
+            [
+                SOURCE_DIR / clean,
+                POSTS_DIR / clean,
+                post_path.parent / clean,
+            ]
+        )
+        if clean.startswith("assets/"):
+            candidates.append(POST_ASSETS_DIR / clean.removeprefix("assets/"))
+
+    unique: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen:
+            unique.append(resolved)
+            seen.add(resolved)
+    return unique
+
+
+def iter_image_targets(content: str) -> list[str]:
+    targets = [match.group(1).strip() for match in MARKDOWN_IMAGE_RE.finditer(content)]
+    targets.extend(match.group(2).strip() for match in HTML_IMAGE_RE.finditer(content))
+    return targets
+
+
+def analyze_post_health(post_path: Path) -> tuple[list[str], int]:
+    content = read_text(post_path)
+    issues: list[str] = []
+    fixable = 0
+
+    if content.startswith("\ufeff"):
+        issues.append("文件开头包含 UTF-8 BOM，可能影响 front matter 识别。")
+        fixable += 1
+    if not content.lstrip("\ufeff").startswith("---"):
+        issues.append("缺少 Hexo front matter。")
+
+    targets = iter_image_targets(content)
+    if not targets:
+        issues.append("未检测到图片引用。")
+
+    for target in targets:
+        clean = unwrap_image_target(target)
+        if not clean or is_external_target(clean):
+            continue
+        normalized = normalize_image_target(post_path, target)
+        if normalized != target:
+            issues.append(f"图片引用建议改为站点绝对路径：{target} -> {normalized}")
+            fixable += 1
+
+        public_target = normalized if normalized.startswith("/assets/") else target
+        source_path = public_target_to_source_path(public_target)
+        if source_path and not source_path.exists():
+            candidate = next((item for item in image_source_candidates(post_path, target, public_target) if item.exists()), None)
+            if candidate:
+                issues.append(f"图片尚未发布，可从 {candidate} 复制到 {source_path}")
+                fixable += 1
+            else:
+                issues.append(f"图片文件不存在：{public_target}")
+
+    return issues, fixable
+
+
+def fix_post_health(post_path: Path) -> list[str]:
+    content = read_text(post_path)
+    changes: list[str] = []
+    if content.startswith("\ufeff"):
+        content = content.lstrip("\ufeff")
+        changes.append("移除 UTF-8 BOM")
+
+    def fix_target(target: str) -> str:
+        normalized = normalize_image_target(post_path, target)
+        if normalized != target:
+            changes.append(f"修正图片路径：{target} -> {normalized}")
+
+        source_path = public_target_to_source_path(normalized)
+        if source_path and not source_path.exists():
+            candidate = next((item for item in image_source_candidates(post_path, target, normalized) if item.exists()), None)
+            if candidate:
+                source_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(candidate, source_path)
+                changes.append(f"复制图片：{candidate} -> {source_path}")
+        return normalized
+
+    content = MARKDOWN_IMAGE_RE.sub(lambda match: match.group(0).replace(match.group(1), fix_target(match.group(1)), 1), content)
+    content = HTML_IMAGE_RE.sub(lambda match: f"{match.group(1)}{fix_target(match.group(2))}{match.group(3)}", content)
+
+    if changes:
+        write_text(post_path, content)
+    return changes
+
+
 @dataclass
 class Friend:
     group: str
@@ -292,6 +470,7 @@ class BlogGui(tk.Tk):
         self.post_paths: list[Path] = []
         self.current_post: Path | None = None
         self.server_process: subprocess.Popen[str] | None = None
+        self.post_check_after_id: str | None = None
 
         self._build_ui()
         self.reload_friends()
@@ -435,6 +614,22 @@ class BlogGui(tk.Tk):
         self.post_path_label = ttk.Label(right, text="", foreground="#666", wraplength=540)
         self.post_path_label.pack(fill="x", padx=12, pady=8)
 
+        check_frame = ttk.LabelFrame(right, text="文章健康检查")
+        check_frame.pack(fill="both", expand=True, padx=8, pady=(4, 8))
+        check_row = ttk.Frame(check_frame)
+        check_row.pack(fill="x", padx=8, pady=6)
+        ttk.Label(check_row, text="MD 文件名").pack(side="left")
+        self.post_check_name = tk.StringVar()
+        check_entry = ttk.Entry(check_row, textvariable=self.post_check_name, width=34)
+        check_entry.pack(side="left", fill="x", expand=True, padx=6)
+        check_entry.bind("<KeyRelease>", self.schedule_post_check)
+        check_entry.bind("<Return>", self.check_post_now)
+        ttk.Button(check_row, text="检测", command=self.check_post_now).pack(side="left", padx=3)
+        ttk.Button(check_row, text="一键修复", command=self.fix_checked_post).pack(side="left", padx=3)
+
+        self.post_check_output = scrolledtext.ScrolledText(check_frame, height=8, wrap=tk.WORD, font=("Consolas", 10))
+        self.post_check_output.pack(fill="both", expand=True, padx=8, pady=(0, 8))
+
     def _build_deploy_tab(self) -> None:
         frame = ttk.Frame(self.deploy_tab)
         frame.pack(fill="both", expand=True, padx=12, pady=12)
@@ -573,6 +768,8 @@ class BlogGui(tk.Tk):
         self.post_tags.delete("1.0", tk.END)
         self.post_tags.insert("1.0", "\n".join(data.get("tags", []) if isinstance(data.get("tags"), list) else [str(data.get("tags", ""))]))
         self.post_path_label.configure(text=str(self.current_post))
+        self.post_check_name.set(self.current_post.name)
+        self.check_post_now()
 
     def save_post(self) -> None:
         if not self.current_post:
@@ -586,6 +783,91 @@ class BlogGui(tk.Tk):
         write_text(self.current_post, format_front_matter(data, body))
         self.reload_posts()
         messagebox.showinfo("已保存", "文章信息已保存。")
+
+    def schedule_post_check(self, _event: tk.Event | None = None) -> None:
+        if self.post_check_after_id:
+            self.after_cancel(self.post_check_after_id)
+        if not self.post_check_name.get().strip():
+            self.set_post_check_output("")
+            return
+        self.post_check_after_id = self.after(650, self.check_post_now)
+
+    def set_post_check_output(self, text: str) -> None:
+        self.post_check_output.delete("1.0", tk.END)
+        self.post_check_output.insert("1.0", text)
+
+    def resolve_post_from_check_input(self) -> Path:
+        query = self.post_check_name.get().strip().strip('"')
+        if not query:
+            if self.current_post:
+                return self.current_post
+            raise ValueError("请输入 MD 文件名，或先在左侧选择一篇文章。")
+
+        candidate = Path(query)
+        if candidate.is_absolute() and candidate.exists():
+            return candidate
+
+        names = {query}
+        if not query.lower().endswith(".md"):
+            names.add(f"{query}.md")
+        for name in names:
+            exact = POSTS_DIR / name
+            if exact.exists():
+                return exact
+
+        lower_query = query.lower().removesuffix(".md")
+        matches: list[Path] = []
+        for path in self.post_paths or sorted(POSTS_DIR.glob("*.md")):
+            data, _body = split_front_matter(read_text(path))
+            title = str(data.get("title", path.stem)).lower()
+            if lower_query in path.stem.lower() or lower_query in path.name.lower() or lower_query in title:
+                matches.append(path)
+
+        if len(matches) == 1:
+            return matches[0]
+        if not matches:
+            raise ValueError(f"没有找到文章：{query}")
+        preview = "\n".join(f"- {path.name}" for path in matches[:8])
+        raise ValueError(f"匹配到多篇文章，请输入更完整的文件名：\n{preview}")
+
+    def check_post_now(self, _event: tk.Event | None = None) -> None:
+        self.post_check_after_id = None
+        try:
+            post_path = self.resolve_post_from_check_input()
+            issues, fixable = analyze_post_health(post_path)
+            lines = [f"检查文章：{post_path.name}", f"路径：{post_path}"]
+            if issues:
+                lines.append("")
+                lines.append(f"发现 {len(issues)} 个问题，其中 {fixable} 个可一键修复：")
+                lines.extend(f"- {issue}" for issue in issues)
+            else:
+                lines.append("")
+                lines.append("未发现明显问题。")
+            self.set_post_check_output("\n".join(lines))
+        except Exception as exc:
+            self.set_post_check_output(f"检测失败：{exc}")
+
+    def fix_checked_post(self) -> None:
+        try:
+            post_path = self.resolve_post_from_check_input()
+            changes = fix_post_health(post_path)
+            issues, fixable = analyze_post_health(post_path)
+            self.reload_posts()
+            lines = [f"修复文章：{post_path.name}", f"路径：{post_path}", ""]
+            if changes:
+                lines.append(f"已执行 {len(changes)} 项修复：")
+                lines.extend(f"- {change}" for change in changes)
+            else:
+                lines.append("没有可执行的自动修复。")
+            lines.append("")
+            if issues:
+                lines.append(f"复查仍有 {len(issues)} 个问题，其中 {fixable} 个可自动修复：")
+                lines.extend(f"- {issue}" for issue in issues)
+            else:
+                lines.append("复查通过，未发现明显问题。")
+            self.set_post_check_output("\n".join(lines))
+        except Exception as exc:
+            messagebox.showerror("修复失败", str(exc))
 
     def append_log(self, text: str) -> None:
         self.log_text.insert(tk.END, text)
