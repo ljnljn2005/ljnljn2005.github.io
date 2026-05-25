@@ -366,6 +366,34 @@ class Friend:
     bio: str
 
 
+def unique_groups(groups: list[str], friends: list[Friend] | None = None) -> list[str]:
+    result: list[str] = []
+    for group in groups:
+        group = group.strip()
+        if group and group not in result:
+            result.append(group)
+    if friends:
+        for friend in friends:
+            group = friend.group.strip()
+            if group and group not in result:
+                result.append(group)
+    return result or ["校内", "校外"]
+
+
+def parse_friend_groups() -> list[str]:
+    if not FRIENDS_FILE.exists():
+        return ["校内", "校外"]
+
+    groups: list[str] = []
+    for line in read_text(FRIENDS_FILE).splitlines():
+        group_match = re.search(r"<h2>(.*?)</h2>", line)
+        if group_match:
+            group = html.unescape(group_match.group(1).strip())
+            if group and group not in groups:
+                groups.append(group)
+    return groups
+
+
 def parse_friends() -> list[Friend]:
     if not FRIENDS_FILE.exists():
         return []
@@ -425,11 +453,8 @@ def friend_card(friend: Friend) -> str:
     </div>"""
 
 
-def write_friends(friends: list[Friend]) -> None:
-    groups: list[str] = []
-    for friend in friends:
-        if friend.group not in groups:
-            groups.append(friend.group)
+def write_friends(friends: list[Friend], groups: list[str] | None = None) -> None:
+    groups = unique_groups(groups or [], friends)
 
     body_lines = [
         "{% raw %}",
@@ -467,6 +492,7 @@ class BlogGui(tk.Tk):
         self.minsize(960, 650)
 
         self.friends: list[Friend] = []
+        self.friend_groups: list[str] = []
         self.post_paths: list[Path] = []
         self.current_post: Path | None = None
         self.server_process: subprocess.Popen[str] | None = None
@@ -548,9 +574,33 @@ class BlogGui(tk.Tk):
         ttk.Button(buttons, text="删除选中", command=self.delete_friend).pack(side="left", padx=4)
         ttk.Button(buttons, text="重新加载", command=self.reload_friends).pack(side="left", padx=4)
 
+        group_box = ttk.LabelFrame(right, text="分组管理")
+        group_box.pack(fill="both", expand=True, padx=8, pady=(8, 4))
+
+        group_list_row = ttk.Frame(group_box)
+        group_list_row.pack(fill="both", expand=True, padx=8, pady=(8, 4))
+        self.group_list = tk.Listbox(group_list_row, height=5, exportselection=False)
+        self.group_list.pack(side="left", fill="both", expand=True)
+        group_scroll = ttk.Scrollbar(group_list_row, orient=tk.VERTICAL, command=self.group_list.yview)
+        group_scroll.pack(side="right", fill="y")
+        self.group_list.configure(yscrollcommand=group_scroll.set)
+        self.group_list.bind("<<ListboxSelect>>", self.on_group_select)
+
+        group_edit_row = ttk.Frame(group_box)
+        group_edit_row.pack(fill="x", padx=8, pady=4)
+        ttk.Label(group_edit_row, text="名称").pack(side="left")
+        self.group_name = tk.StringVar()
+        ttk.Entry(group_edit_row, textvariable=self.group_name).pack(side="left", fill="x", expand=True, padx=6)
+
+        group_buttons = ttk.Frame(group_box)
+        group_buttons.pack(fill="x", padx=8, pady=(2, 8))
+        ttk.Button(group_buttons, text="新增分组", command=self.add_group).pack(side="left", padx=3)
+        ttk.Button(group_buttons, text="重命名", command=self.rename_group).pack(side="left", padx=3)
+        ttk.Button(group_buttons, text="删除分组", command=self.delete_group).pack(side="left", padx=3)
+
         tip = ttk.Label(
             right,
-            text="头像可填网址或本地文件。保存时会自动缓存到 source/assets/friends/，避免外链失效。",
+            text="头像可填网址或本地文件。保存时会自动缓存到 source/assets/friends/。删除分组会同时删除该分组下的友链。",
             wraplength=360,
             foreground="#666",
         )
@@ -662,11 +712,96 @@ class BlogGui(tk.Tk):
 
     def reload_friends(self) -> None:
         self.friends = parse_friends()
+        self.friend_groups = unique_groups(parse_friend_groups(), self.friends)
         self.friend_tree.delete(*self.friend_tree.get_children())
         for idx, friend in enumerate(self.friends):
             self.friend_tree.insert("", "end", iid=str(idx), values=(friend.group, friend.name, friend.bio, friend.url))
-        groups = sorted({friend.group for friend in self.friends} | {"校内", "校外"})
-        self.friend_group_combo.configure(values=groups)
+        self.refresh_group_controls()
+
+    def refresh_group_controls(self) -> None:
+        self.friend_groups = unique_groups(self.friend_groups, self.friends)
+        self.friend_group_combo.configure(values=self.friend_groups)
+        self.group_list.delete(0, tk.END)
+        for group in self.friend_groups:
+            count = sum(1 for friend in self.friends if friend.group == group)
+            self.group_list.insert(tk.END, f"{group} ({count})")
+
+    def selected_group_index(self) -> int | None:
+        selection = self.group_list.curselection()
+        if not selection:
+            return None
+        idx = int(selection[0])
+        if idx < 0 or idx >= len(self.friend_groups):
+            return None
+        return idx
+
+    def on_group_select(self, _event: tk.Event) -> None:
+        idx = self.selected_group_index()
+        if idx is None:
+            return
+        group = self.friend_groups[idx]
+        self.group_name.set(group)
+        self.friend_group.set(group)
+
+    def persist_friends(self) -> None:
+        self.friend_groups = unique_groups(self.friend_groups, self.friends)
+        write_friends(self.friends, self.friend_groups)
+
+    def add_group(self) -> None:
+        group = self.group_name.get().strip()
+        if not group:
+            messagebox.showwarning("缺少分组名", "请输入分组名称。")
+            return
+        if group in self.friend_groups:
+            messagebox.showinfo("分组已存在", f"分组“{group}”已经存在。")
+            return
+        self.friend_groups.append(group)
+        self.persist_friends()
+        self.reload_friends()
+        self.friend_group.set(group)
+        messagebox.showinfo("已新增", f"分组“{group}”已新增。")
+
+    def rename_group(self) -> None:
+        idx = self.selected_group_index()
+        if idx is None:
+            messagebox.showwarning("未选择分组", "请先在分组列表里选择一个分组。")
+            return
+        old_group = self.friend_groups[idx]
+        new_group = self.group_name.get().strip()
+        if not new_group:
+            messagebox.showwarning("缺少分组名", "请输入新的分组名称。")
+            return
+        if new_group == old_group:
+            return
+        if new_group in self.friend_groups:
+            if not messagebox.askyesno("确认合并", f"分组“{new_group}”已存在。是否把“{old_group}”合并进去？"):
+                return
+            self.friend_groups.pop(idx)
+        else:
+            self.friend_groups[idx] = new_group
+        for friend in self.friends:
+            if friend.group == old_group:
+                friend.group = new_group
+        self.persist_friends()
+        self.reload_friends()
+        self.friend_group.set(new_group)
+        messagebox.showinfo("已重命名", f"分组“{old_group}”已改为“{new_group}”。")
+
+    def delete_group(self) -> None:
+        idx = self.selected_group_index()
+        if idx is None:
+            messagebox.showwarning("未选择分组", "请先在分组列表里选择一个分组。")
+            return
+        group = self.friend_groups[idx]
+        count = sum(1 for friend in self.friends if friend.group == group)
+        if not messagebox.askyesno("确认删除", f"删除分组“{group}”？该分组下 {count} 个友链也会被删除。"):
+            return
+        self.friend_groups.pop(idx)
+        self.friends = [friend for friend in self.friends if friend.group != group]
+        self.persist_friends()
+        self.reload_friends()
+        self.new_friend()
+        messagebox.showinfo("已删除", f"分组“{group}”已删除。")
 
     def on_friend_select(self, _event: tk.Event) -> None:
         selection = self.friend_tree.selection()
@@ -678,10 +813,17 @@ class BlogGui(tk.Tk):
         self.friend_url.set(friend.url)
         self.friend_avatar.set(friend.avatar)
         self.friend_bio.set(friend.bio)
+        if friend.group in self.friend_groups:
+            idx = self.friend_groups.index(friend.group)
+            self.group_list.selection_clear(0, tk.END)
+            self.group_list.selection_set(idx)
+            self.group_list.see(idx)
+            self.group_name.set(friend.group)
 
     def new_friend(self) -> None:
         self.friend_tree.selection_remove(self.friend_tree.selection())
-        self.friend_group.set("校内")
+        idx = self.selected_group_index()
+        self.friend_group.set(self.friend_groups[idx] if idx is not None else (self.friend_groups[0] if self.friend_groups else "校内"))
         self.friend_name.set("")
         self.friend_url.set("")
         self.friend_avatar.set("")
@@ -709,12 +851,14 @@ class BlogGui(tk.Tk):
                 avatar=avatar,
                 bio=self.friend_bio.get().strip(),
             )
+            if friend.group not in self.friend_groups:
+                self.friend_groups.append(friend.group)
             selection = self.friend_tree.selection()
             if selection:
                 self.friends[int(selection[0])] = friend
             else:
                 self.friends.append(friend)
-            write_friends(self.friends)
+            self.persist_friends()
             self.reload_friends()
             messagebox.showinfo("已保存", "友链已保存。")
         except Exception as exc:
@@ -728,7 +872,7 @@ class BlogGui(tk.Tk):
         if not messagebox.askyesno("确认删除", f"删除友链：{self.friends[idx].name}？"):
             return
         del self.friends[idx]
-        write_friends(self.friends)
+        self.persist_friends()
         self.reload_friends()
 
     def load_about(self) -> None:
