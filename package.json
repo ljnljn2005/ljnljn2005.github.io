@@ -7,6 +7,7 @@
     "build": "hexo generate",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
+    "gui": "python tools/blog_gui.py",
     "server": "hexo server",
     "start": "hexo server"
   },

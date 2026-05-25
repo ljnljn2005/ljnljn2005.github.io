@@ -8,7 +8,16 @@
 npm install
 npm run server
 npm run build
+npm run gui
 ```
+
+本地 GUI 管理工具：
+
+```powershell
+.\run-blog-gui.bat
+```
+
+GUI 支持维护友链、编辑关于页、修改文章分类/标签，并可一键构建、提交和推送。
 
 本仓库已配置本地 Git 提交钩子，用来在提交前拦截常见 API key。首次克隆后可运行：
 
