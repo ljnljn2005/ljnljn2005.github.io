@@ -1,8 +1,18 @@
-﻿最后第二，最大的优势就是火眼一键仿真成功了，真的很玄学
+---
+title: "2026FIC初赛wp"
+date: 2026-05-25 19:01:38
+categories:
+  - CTF Writeup
+tags:
+  - CTF
+  - Writeup
+---
+
+最后第二，最大的优势就是火眼一键仿真成功了，真的很玄学
 也感谢两名队友，真的tql，被带飞了
 手机里存的vc密码：
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/f57a53854a8bf0faa242b08a47dc177c_MD5.png)
+![](/assets/f57a53854a8bf0faa242b08a47dc177c_MD5.png)
 
 # 计算机部分
 
@@ -10,25 +20,25 @@
 
 23.1
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/e3648592a7fffee2fdef6c705baa4932_MD5.png)
+![](/assets/e3648592a7fffee2fdef6c705baa4932_MD5.png)
 
 ## 2、分析计算机检材，李安弘曾收到一份免费领取token的邮件的疑似钓鱼邮件，其发送用户邮箱为
 
 hf13338261292@outlook.com
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/70fe7eefd8cb1e3619741eb5ed3de7bb_MD5.png)
+![](/assets/70fe7eefd8cb1e3619741eb5ed3de7bb_MD5.png)
 
 ## 3、分析计算机检材，李安弘电脑中记录的黄金换现金的商家联系方式为
 
 13612817854
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/3decf06a3a4ff120eac52e0395b4e23f_MD5.png)
+![](/assets/3decf06a3a4ff120eac52e0395b4e23f_MD5.png)
 
 ## 4、分析计算机检材，推广设计图中的apk下载链接为
 
 https://drive.google.com/file/d/1z3aRS-lkaJYKm7Cp1XjtUmVPsOEVW2fV/view?usp=sharing
 
-![](assets/2026FIC初赛wp/file-20260506171919132.png)
+![](/assets/2026FIC初赛wp/file-20260506171919132.png)
 
 ## 5、分析计算机检材，李安弘电脑vpn软件开放的代理端口为
 
@@ -40,7 +50,7 @@ Clash Verge 配置里 mixed-port: 9527
 
 OpenRouter
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/b899177608046a8c6d1399f0172a3286_MD5.png)
+![](/assets/b899177608046a8c6d1399f0172a3286_MD5.png)
 
 ## 7、分析计算机检材，李安弘电脑中AI软件当前使用的模型apiKey为
 
@@ -63,7 +73,7 @@ zhenyiexin@tutanota.com
 
 997546
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/cdf247663b0cec2fe142323a8e9355dd_MD5.png)
+![](/assets/cdf247663b0cec2fe142323a8e9355dd_MD5.png)
 
 vc解开看视频，get_token_linux 是一个 Go 写的 MP4 修复/解密工具，反汇编后确认 MP4 的 stco 偏移被扰乱了 1337 字节，恢复即可
 
@@ -86,7 +96,7 @@ vc解开看视频，get_token_linux 是一个 Go 写的 MP4 修复/解密工具�
 
 ## 1、分析手机检材，该手机型号为
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/2b45dc120558c3e8ec90f3f1af8ff9aa_MD5.png)
+![](/assets/2b45dc120558c3e8ec90f3f1af8ff9aa_MD5.png)
 
 ## 2、分析手机检材，李安弘手机计划前往迪拜的日期是
 
@@ -96,11 +106,11 @@ vc解开看视频，get_token_linux 是一个 Go 写的 MP4 修复/解密工具�
 
 猜测
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/cd5c08e8135d5ab710c6e0f908dadf6a_MD5.png)
+![](/assets/cd5c08e8135d5ab710c6e0f908dadf6a_MD5.png)
 
   
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/59aa7b4119ed03f3bf49fb5a8ea5d5b6_MD5.png)
+![](/assets/59aa7b4119ed03f3bf49fb5a8ea5d5b6_MD5.png)
 
 ## 4、分析手机检材，李安弘手机中与网站搭建人员沟通所使用的app，存放聊天数据的数据库为
 
@@ -153,7 +163,7 @@ C:\hlnet\1-1777092576\检材2-手机.tar\storage\emulated\0\Android\data\com.tal
 5. 2026-04-16 16:57:21 “我的手机如何保存助记词最合适”
     
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/41004a9f951872646f3e0be66a87d94e_MD5.png)
+![](/assets/41004a9f951872646f3e0be66a87d94e_MD5.png)
 
 ## 9、分析手机检材，李安弘手机使用的AI软件调用本地AI模型及版本为
 
@@ -161,7 +171,7 @@ C:\hlnet\1-1777092576\检材2-手机.tar\storage\emulated\0\Android\data\com.tal
 
 李安弘确实使用过无人机航拍。手机中存在 DJI Fly 飞行记录文件 FlightRecord_2026-02-17_[15-14-53].txt 和 FlightRecord_2026-02-17_[15-58-14].txt。解析结果显示两次飞行起飞坐标分别为 37.796638, 110.370705 和 37.796634, 110.370690，本地时间分别约为 2026-02-17 15:14:53 和 15:58:14，飞行距离约 1416.4 米、518.8 米。根据该坐标反查，飞行地点位于 陕西省榆林市米脂县。
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/f8e6b7bee1936117e65c4d1455f6bd5c_MD5.png)
+![](/assets/f8e6b7bee1936117e65c4d1455f6bd5c_MD5.png)
 
 ## 11、分析手机检材，李安弘最近安装了一个视频类APP，该APP声明了多个敏感权限用于收集用户隐私。请选择其中涉及用户隐私的敏感权限。
 
@@ -276,11 +286,11 @@ backup.sp-live88.xyz:8443
 
 注意这里勾选两个磁盘
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/782db0dc345e32465c6c6bec22eb42e1_MD5.png)
+![](/assets/782db0dc345e32465c6c6bec22eb42e1_MD5.png)
 
   
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/0e577db24ecd9d0c64bce35af5ed1f27_MD5.png)
+![](/assets/0e577db24ecd9d0c64bce35af5ed1f27_MD5.png)
 
 需要打开这两个以用root身份连接服务器
 
@@ -662,7 +672,7 @@ ps aux | grep -Ei 'mysqld|postgres|tidb|tikv|pd-server|tiflash'
 
 764789dd9c095d74b6b258cf0f7568b2
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/851273f1bdb29cb55ff0cd252ead9df8_MD5.png)
+![](/assets/851273f1bdb29cb55ff0cd252ead9df8_MD5.png)
 
 ## 2、分析SampleVC.exe，该程序编译的日期可能是什么？
 
@@ -680,4 +690,5 @@ vhd
 
 李安弘虚拟币收款地址钱包总收款金额：186948.09
 
-![](%E5%8F%96%E8%AF%81/%E6%AF%94%E8%B5%9BWriteUp/2026/assets/de8145143bf80ef1cb6436137fc00328_MD5.png)
+![](/assets/de8145143bf80ef1cb6436137fc00328_MD5.png)
+

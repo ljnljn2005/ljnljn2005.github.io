@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+pattern='(sk-or-v1-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16})'
+matches="$(git grep --cached -I -n -E "$pattern" -- . ':!package-lock.json' ':!*.min.js' ':!public/**' || true)"
+
+if [ -n "$matches" ]; then
+  echo "Commit blocked: possible secret found in staged changes." >&2
+  echo "Remove or redact the key before committing." >&2
+  echo "$matches" >&2
+  exit 1
+fi
