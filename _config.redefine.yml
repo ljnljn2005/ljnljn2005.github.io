@@ -11,7 +11,7 @@
 # Docs: https://redefine-docs.ohevan.com/basic/info
 info:
   # Site title
-  title: ljnljn 的博客
+  title: "ljnljn'sBlog"
   # Site subtitle
   subtitle: 记录学习、代码与想法
   # Author name
@@ -25,11 +25,11 @@ info:
 # Docs: https://redefine-docs.ohevan.com/basic/defaults
 defaults:
   # Favicon
-  favicon: /images/redefine-favicon.svg
+  favicon: "https://files.cnblogs.com/files/blogs/833309/%E5%9B%BE%E7%89%871.ico"
   # Site logo
   logo: 
   # Site avatar
-  avatar: /images/redefine-avatar.svg
+  avatar: "https://pic.cnblogs.com/avatar/3539156/20260512195954.png"
 # IMAGE CONFIGURATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< end
 
 
@@ -131,10 +131,10 @@ home_banner:
   style: fixed # static or fixed
   # Home banner image
   image: 
-    light: /images/wallhaven-wqery6-light.webp # light mode
-    dark: /images/wallhaven-wqery6-dark.webp # dark mode
+    light: /images/home-background.png # light mode
+    dark: /images/home-background.png # dark mode
   # Home banner title
-  title: ljnljn 的博客
+  title: "ljnljn'sBlog"
   # Home banner subtitle
   subtitle:
     text:
