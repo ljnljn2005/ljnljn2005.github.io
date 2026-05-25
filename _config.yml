@@ -3,14 +3,14 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: ljnljn2005 的博客
+title: ljnljn 的博客
 subtitle: '记录学习、代码与想法'
 description: '由 Hexo 驱动、Redefine 主题呈现的个人博客。'
 keywords:
   - Hexo
   - Redefine
   - GitHub Pages
-author: ljnljn2005
+author: ljnljn
 language: zh-CN
 timezone: Asia/Shanghai
 

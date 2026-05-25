@@ -1,4 +1,4 @@
-# ljnljn2005 的博客
+# ljnljn 的博客
 
 这是一个由 Hexo 驱动、Redefine 主题呈现，并通过 GitHub Actions 发布到 GitHub Pages 的个人博客。
 

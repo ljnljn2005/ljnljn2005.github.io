@@ -11,11 +11,11 @@
 # Docs: https://redefine-docs.ohevan.com/basic/info
 info:
   # Site title
-  title: ljnljn2005 的博客
+  title: ljnljn 的博客
   # Site subtitle
   subtitle: 记录学习、代码与想法
   # Author name
-  author: ljnljn2005
+  author: ljnljn
   # Site URL
   url: https://ljnljn2005.github.io
 # BASIC INFORMATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< end
@@ -134,7 +134,7 @@ home_banner:
     light: /images/wallhaven-wqery6-light.webp # light mode
     dark: /images/wallhaven-wqery6-dark.webp # dark mode
   # Home banner title
-  title: ljnljn2005 的博客
+  title: ljnljn 的博客
   # Home banner subtitle
   subtitle:
     text:
