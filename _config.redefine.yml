@@ -138,8 +138,9 @@ home_banner:
   # Home banner subtitle
   subtitle:
     text:
-      - 记录学习、代码与想法
-      - Powered by Hexo and Redefine
+      - This blog is made by ljnljn.
+      - My goal is to write a blog every day in Year 2026.
+      - enjoy it🍺
     hitokoto:  # 一言配置
       enable: false # Whether to enable hitokoto
       show_author: false # Whether to show author
