@@ -1,12 +1,10 @@
 ---
-title: 博客搭好了
+title: "博客搭好了"
 date: 2026-05-24 23:10:00
 categories:
-  - 博客
+  - Others
 tags:
-  - Hexo
-  - Redefine
-  - GitHub Pages
+  - Others
 ---
 
 第一篇文章留给这个博客本身。

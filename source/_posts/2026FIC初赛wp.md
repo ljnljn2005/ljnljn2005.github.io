@@ -2,10 +2,12 @@
 title: "2026FIC初赛wp"
 date: 2026-05-25 19:01:38
 categories:
-  - CTF Writeup
+  - Forensics Writeup
 tags:
-  - CTF
+  - Forensics
   - Writeup
+  - FIC
+  - 复现
 ---
 
 最后第二，最大的优势就是火眼一键仿真成功了，真的很玄学
@@ -691,4 +693,3 @@ vhd
 李安弘虚拟币收款地址钱包总收款金额：186948.09
 
 ![](/assets/de8145143bf80ef1cb6436137fc00328_MD5.png)
-

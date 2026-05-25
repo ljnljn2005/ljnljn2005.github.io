@@ -2,10 +2,12 @@
 title: "didctf电子取证初学WP"
 date: 2026-05-06 17:17:30
 categories:
-  - CTF Writeup
+  - Forensics Writeup
 tags:
-  - CTF
+  - Forensics
   - Writeup
+  - DIDCTF
+  - 复现
 ---
 
 ## 计算机取证
